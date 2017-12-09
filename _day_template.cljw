@@ -8,10 +8,21 @@
 
 ;; @@
 (ns aoc17dXXX
-  (:require [gorilla-plot.core :as plot]))
+  (:require [gorilla-plot.core :as plot]
+            [clojure.string :as s]))
 ;; @@
 ;; =>
 ;;; {"type":"html","content":"<span class='clj-nil'>nil</span>","value":"nil"}
+;; <=
+
+;; @@
+(defn parse-int
+  "Parses integer - throws an exception"
+  [s]
+  (Integer. #^String (re-find  #"-*\d+" s )))
+;; @@
+;; =>
+;;; {"type":"html","content":"<span class='clj-var'>#&#x27;aoc17dXXX/parse-int</span>","value":"#'aoc17dXXX/parse-int"}
 ;; <=
 
 ;; @@
@@ -22,38 +33,6 @@
 ;; <=
 
 ;; @@
-; Trasforma una stringa di numeri in un vettore di interi,
-; aggiungendo in fondo il primo valore
-(defn vals-as-vec 
-  [s]
-  (mapv #(java.lang.Integer. (str %)) s))
-
-(defn rotate
-  [sq offs]
-  
-  (->> sq
-       cycle
-       (drop offs)
-       (take (count sq)))
-  
-  )
-
-
-(defn compute 
-  [in offs]
-  (let [v (vals-as-vec in)]
-  	(apply + 
-           (map (fn [a b] 
-           			(if (= a b) a 0)) 
-                	v 
-                	(rotate v offs)))))
-  
-  
-
- (defn ex1 [s] (compute s 1))
-
- (defn ex2 [s] (compute s (/ (count s) 2)))
- 
 
 ;; @@
 ;; =>
@@ -61,40 +40,17 @@
 ;; <=
 
 ;; @@
-(assert (= (ex1 "1122") 3))
-(assert (= (ex1 "1111") 4))
-(assert (= (ex1 "1234") 0))
-(assert (= (ex1 "91212129") 9))
-
-(assert (= (ex2 "1212") 6))
-(assert (= (ex2 "1221") 0))
-(assert (= (ex2 "123425") 4))
-(assert (= (ex2 "123123") 12))
-(assert (= (ex2 "123123") 12))
-
-;1221 produces 0, because every comparison is between a 1 and a 2.
-;123425 produces 4, because both 2s match each other, but no other digit has a match.
-;123123 produces 12.
-;12131415 produces 4.
+;(assert (= (ex1 "1122") 3))
 
 ;; @@
-;; =>
-;;; {"type":"html","content":"<span class='clj-nil'>nil</span>","value":"nil"}
-;; <=
 
 ;; @@
-(ex1 MYVAL)
+;(ex1 MYVAL)
 ;; @@
-;; =>
-;;; {"type":"html","content":"<span class='clj-long'>1182</span>","value":"1182"}
-;; <=
 
 ;; @@
-(ex2 MYVAL)
+;(ex2 MYVAL)
 ;; @@
-;; =>
-;;; {"type":"html","content":"<span class='clj-long'>1152</span>","value":"1152"}
-;; <=
 
 ;; @@
 

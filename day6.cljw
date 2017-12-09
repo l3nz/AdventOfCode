@@ -1,0 +1,125 @@
+;; gorilla-repl.fileformat = 1
+
+;; **
+;;; # Day 6
+;;; 
+;;; 	
+;; **
+
+;; @@
+(ns aoc17d6
+  (:require [gorilla-plot.core :as plot]
+            [clojure.string :as s]))
+;; @@
+;; =>
+;;; {"type":"html","content":"<span class='clj-nil'>nil</span>","value":"nil"}
+;; <=
+
+;; @@
+(defn parse-int
+  "Parses integer - throws an exception"
+  [s]
+  (Integer. #^String (re-find  #"-*\d+" s )))
+;; @@
+;; =>
+;;; {"type":"html","content":"<span class='clj-var'>#&#x27;aoc17d6/parse-int</span>","value":"#'aoc17d6/parse-int"}
+;; <=
+
+;; @@
+(def MYKEY "10	3	15	10	5	15	5	15	9	2	5	8	5	2	3	6")
+(def TESTKEY "0 2 7 0")
+;; @@
+;; =>
+;;; {"type":"html","content":"<span class='clj-var'>#&#x27;aoc17d6/TESTKEY</span>","value":"#'aoc17d6/TESTKEY"}
+;; <=
+
+;; @@
+(defn key->vec [k]
+  (mapv parse-int (s/split k #"\s+")))
+
+;(key->vec MYKEY)
+
+;; @@
+;; =>
+;;; {"type":"html","content":"<span class='clj-var'>#&#x27;aoc17d6/key-&gt;vec</span>","value":"#'aoc17d6/key->vec"}
+;; <=
+
+;; @@
+(defn inc-at [mb p]
+  (let [rp (rem p (count mb))
+        v0 (get mb rp)]
+    ;(prn "MB:" mb "P" p)
+    (assoc mb rp (inc v0))))
+
+
+(defn redistr [mb p]
+  (let [v (get mb p :err)
+        mb0 (assoc mb p 0)
+        sp (inc p)]
+    	(reduce inc-at mb0 (range sp (+ sp v)))
+    ))
+
+(defn find-thing [needle haystack]
+  (keep-indexed #(when (= %2 needle) %1) haystack))
+
+(defn maxbank [mb]
+  (let [mmx (apply max mb)]
+  	(first (find-thing mmx mb)) 
+    ))
+
+
+(defn reprocess [mb]
+  (redistr mb (maxbank mb)))
+
+
+
+(defn process-until-found [mb]
+  (loop [bank mb
+         knownset {}
+         nloops 1]
+    (let [;_ (prn "mb" mb "set" knownset "l" nloops)
+           newbank (reprocess bank)]
+      (if 
+        (nil? (get knownset newbank))
+        (recur newbank (conj knownset [newbank nloops]) (inc nloops))
+        [nloops (get knownset newbank)]
+        )
+      )))
+
+
+
+;; @@
+;; =>
+;;; {"type":"html","content":"<span class='clj-var'>#&#x27;aoc17d6/process-until-found</span>","value":"#'aoc17d6/process-until-found"}
+;; <=
+
+;; @@
+;(assert (= (ex1 "1122") 3))
+
+(process-until-found (key->vec TESTKEY))
+;; @@
+;; =>
+;;; {"type":"list-like","open":"<span class='clj-vector'>[</span>","close":"<span class='clj-vector'>]</span>","separator":" ","items":[{"type":"html","content":"<span class='clj-long'>5</span>","value":"5"},{"type":"html","content":"<span class='clj-long'>1</span>","value":"1"}],"value":"[5 1]"}
+;; <=
+
+;; @@
+;(ex1 MYKEY)
+(process-until-found (key->vec MYKEY))
+;; @@
+;; =>
+;;; {"type":"list-like","open":"<span class='clj-vector'>[</span>","close":"<span class='clj-vector'>]</span>","separator":" ","items":[{"type":"html","content":"<span class='clj-long'>14029</span>","value":"14029"},{"type":"html","content":"<span class='clj-long'>11264</span>","value":"11264"}],"value":"[14029 11264]"}
+;; <=
+
+;; @@
+;(ex2 MYKEY)
+(let [[c p] (process-until-found (key->vec MYKEY))]
+  (- c p))
+
+;; @@
+;; =>
+;;; {"type":"html","content":"<span class='clj-long'>2765</span>","value":"2765"}
+;; <=
+
+;; @@
+
+;; @@
