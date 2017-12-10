@@ -20,24 +20,29 @@
   "Parses integer - throws an exception"
   [s]
   (Integer. #^String (re-find  #"-*\d+" s )))
+
+(defn str->lines [txt]
+  (s/split txt #"\n"))
+
+(defn assertSpy [myfn in expout]
+  (let [out (myfn in)]
+    (assert (= expout out) (str "Input: " in " out:" out " exp:" expout ))))
+
 ;; @@
 ;; =>
-;;; {"type":"html","content":"<span class='clj-var'>#&#x27;aoc17dXXX/parse-int</span>","value":"#'aoc17dXXX/parse-int"}
+;;; {"type":"html","content":"<span class='clj-var'>#&#x27;aoc17dXXX/assertSpy</span>","value":"#'aoc17dXXX/assertSpy"}
 ;; <=
 
 ;; @@
 (def MYKEY "")
 ;; @@
 ;; =>
-;;; {"type":"html","content":"<span class='clj-var'>#&#x27;aoc17d1/MYVAL</span>","value":"#'aoc17d1/MYVAL"}
+;;; {"type":"html","content":"<span class='clj-var'>#&#x27;aoc17dXXX/MYKEY</span>","value":"#'aoc17dXXX/MYKEY"}
 ;; <=
 
 ;; @@
 
 ;; @@
-;; =>
-;;; {"type":"html","content":"<span class='clj-var'>#&#x27;aoc17d1/ex2</span>","value":"#'aoc17d1/ex2"}
-;; <=
 
 ;; @@
 ;(assert (= (ex1 "1122") 3))
@@ -45,11 +50,11 @@
 ;; @@
 
 ;; @@
-;(ex1 MYVAL)
+;(ex1 MYKEY)
 ;; @@
 
 ;; @@
-;(ex2 MYVAL)
+;(ex2 MYKEY)
 ;; @@
 
 ;; @@
