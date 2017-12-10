@@ -1,0 +1,226 @@
+;; gorilla-repl.fileformat = 1
+
+;; **
+;;; # Day 9
+;;; 
+;;; 10 dic 17
+;;; 
+;;; 	
+;; **
+
+;; @@
+(ns aoc17d9
+  (:require [gorilla-plot.core :as plot]
+            [clojure.string :as s]))
+;; @@
+;; =>
+;;; {"type":"html","content":"<span class='clj-nil'>nil</span>","value":"nil"}
+;; <=
+
+;; @@
+(defn parse-int
+  "Parses integer - throws an exception"
+  [s]
+  (Integer. #^String (re-find  #"-*\d+" s )))
+
+(defn str->lines [txt]
+  (s/split txt #"\n"))
+
+(defn assertSpy [myfn in expout]
+  (let [out (myfn in)]
+    (assert (= expout out) (str "Input: " in " out:" out " exp:" expout ))))
+
+;(assertSpy + 1 1)
+
+;; @@
+;; =>
+;;; {"type":"html","content":"<span class='clj-var'>#&#x27;aoc17d9/assertSpy</span>","value":"#'aoc17d9/assertSpy"}
+;; <=
+
+;; @@
+(def TEST "")
+
+(def MYKEY (slurp "day9.txt")) ; è piena di caratteri speciali
+;; @@
+;; =>
+;;; {"type":"html","content":"<span class='clj-var'>#&#x27;aoc17d9/MYKEY</span>","value":"#'aoc17d9/MYKEY"}
+;; <=
+
+;; @@
+; :keep
+; :ignore-until-close
+; :ignore
+
+(defn degarbage [vIn]
+  (loop [sIn vIn
+         state :normal
+         sOut []]
+    
+    (let [;_ (prn "I" sIn "S" state "O" sOut)
+          c (first sIn)
+          r (rest sIn)]
+      (if (empty? sIn)
+        sOut
+ 	   (condp = state
+    	  :normal (if (= c \<)
+                (recur r :garbage sOut)
+                (recur r :normal  (conj sOut c))
+                )
+      	  :garbage (cond
+                 (= c \!) (recur r :bang sOut)
+                 (= c \>) (recur r :normal sOut)
+                 :else    (recur r :garbage sOut)
+                 )
+      	  :bang    (recur r :garbage sOut))    
+        
+        ) )))
+      
+
+(defn degarbage-str [i]
+  (-> i
+      vec
+      degarbage
+      s/join))
+
+
+(defn itemizer [vIn]
+  (loop [sIn vIn
+         lvl 1 ; prox livello
+         scr []]
+    
+    (let [;_ (prn "I" sIn "S" state "O" sOut)
+          c (first sIn)
+          r (rest sIn)]
+      (if (empty? sIn)
+        scr
+ 	
+        (condp = c
+          \{  (recur r (inc lvl) (conj scr lvl) )
+          \}  (recur r (dec lvl) scr)
+          \,  (recur r lvl scr)
+          
+          
+          
+          )))))
+
+
+
+;(itemizer (vec "{{},{}}{}"))
+
+;(s/join ['a 'b])
+
+(defn sum [vs]
+  (reduce + 0 vs))
+
+(defn degarbage-itemize-str [i]
+  (-> i
+      vec
+      degarbage
+      itemizer
+      sum
+      ))
+
+
+;; @@
+;; =>
+;;; {"type":"html","content":"<span class='clj-var'>#&#x27;aoc17d9/degarbage-itemize-str</span>","value":"#'aoc17d9/degarbage-itemize-str"}
+;; <=
+
+;; @@
+(assertSpy degarbage-str "a<>b" "ab")
+(assertSpy degarbage-str "a<<<<>b" "ab")
+(assertSpy degarbage-str "a<{!>}>b" "ab")
+(assertSpy degarbage-str "a<!!>b" "ab")
+(assertSpy degarbage-str "a<!!!>>b" "ab")
+(assertSpy degarbage-str "a<{oxi!a,<{i<a>b" "ab")
+
+(assertSpy itemizer (vec "{}") [1])
+(assertSpy itemizer (vec "{{{}}}") [1 2 3])
+(assertSpy itemizer (vec "{{},{}}") [1 2 2])
+(assertSpy itemizer (vec "{{{},{},{{}}}}") [1 2 3 3 3 4])
+
+
+(assertSpy degarbage-itemize-str "{<a>,<a>,<a>,<a>}" 1)
+(assertSpy degarbage-itemize-str "{{<ab>},{<ab>},{<ab>},{<ab>}}" 9)
+(assertSpy degarbage-itemize-str "{{<!!>},{<!!>},{<!!>},{<!!>}}" 9)
+(assertSpy degarbage-itemize-str "{{<a!>},{<a!>},{<a!>},{<ab>}}" 3)
+
+
+
+;; @@
+;; =>
+;;; {"type":"html","content":"<span class='clj-nil'>nil</span>","value":"nil"}
+;; <=
+
+;; @@
+
+(degarbage-itemize-str MYKEY)
+;(ex1 MYKEY)
+
+
+
+
+;; @@
+;; =>
+;;; {"type":"html","content":"<span class='clj-long'>20530</span>","value":"20530"}
+;; <=
+
+;; @@
+;(ex2 MYKEY)
+
+
+(defn degarbage-count [vIn]
+  (loop [sIn vIn
+         state :normal
+         nchars 0]
+    
+    (let [;_ (prn "I" sIn "S" state "O" sOut)
+          c (first sIn)
+          r (rest sIn)]
+      (if (empty? sIn)
+        nchars
+ 	   (condp = state
+    	  :normal (if (= c \<)
+                (recur r :garbage nchars)
+                (recur r :normal  nchars)
+                )
+      	  :garbage (cond
+                 (= c \!) (recur r :bang nchars)
+                 (= c \>) (recur r :normal nchars)
+                 :else    (recur r :garbage (inc nchars))
+                 )
+      	  :bang    (recur r :garbage nchars))    
+        
+        ) )))
+      
+      
+(defn degarbage-count-str [i]
+  (-> i
+      vec
+      degarbage-count
+      ))    
+      
+(assertSpy degarbage-count-str "a<>b" 0)
+(assertSpy degarbage-count-str "<>" 0)
+(assertSpy degarbage-count-str "<random characters>" 17)
+(assertSpy degarbage-count-str "<<<<>" 3 )
+(assertSpy degarbage-count-str "<{!>}>" 2 )
+(assertSpy degarbage-count-str "<!!>" 0 )
+(assertSpy degarbage-count-str "<!!!>>" 0 )
+(assertSpy degarbage-count-str "<{oxi!a,<{i<a>" 10) 
+;; @@
+;; =>
+;;; {"type":"html","content":"<span class='clj-nil'>nil</span>","value":"nil"}
+;; <=
+
+;; @@
+(degarbage-count-str MYKEY)
+
+;; @@
+;; =>
+;;; {"type":"html","content":"<span class='clj-long'>9978</span>","value":"9978"}
+;; <=
+
+;; @@
+
+;; @@
